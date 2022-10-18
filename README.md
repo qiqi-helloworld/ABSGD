@@ -4,6 +4,12 @@ This is the official implementation of Algorithm 1 the paper "**A Unified Stocha
 <img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
 
 
+News!
+----------------------------------------------
+With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge.\
+The code are provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/iwilds-competition).
+
+
 
 Implementation Details.
 ----------------------------------------------
