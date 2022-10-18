@@ -6,8 +6,7 @@ This is the official implementation of Algorithm 1 the paper "**A Unified Stocha
 
 News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de92a5-8ccb-48ed-b477-aa435e155c1f.png" alt="drawing" width="20"/>
 ----------------------------------------------
-With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge.\
-The code are provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/iwilds-competition).
+With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge.The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/iwilds-competition).
 
 
 
