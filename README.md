@@ -9,9 +9,9 @@ Implementation Details.
 ----------------------------------------------
 During the implementation, we encode the robust weight $\tilde{p}_i$ in Step 6 in Algorithm 1 into the loss function and then by optimizing the robust loss using SGD, we have ABSGD. Implemented in this way, with simple modifications, ABSGD can easily optimize other SOTA losses such as CBCE, LDAM, focal. Key parameters of ABSGD
 ```python
->>> @myLambda : $\lambda$
->>> @abAlpha : a hyperparamter between $(0,1]$ to handle the numerical issue may appear the second stage.
->>> @drogamma : $\gamma$, moving average hyper-parameter
+--myLambda : $\lambda$
+--abAlpha : a hyperparamter between $(0,1]$ to handle the numerical issue may appear the second stage.
+--drogamma : $\gamma$, moving average hyper-parameter
 
 ```
 
