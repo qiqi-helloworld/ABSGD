@@ -18,24 +18,19 @@ import torch
 # warnings.warn = my_warn
 #
 
-class ROBSGD(nn.Module):
+class ABSGD(nn.Module):
     '''
-    Encoding ROBSGD algorithm with different loss functions.
+    Encoding ABSGD algorithm with different loss functions.
     '''
 
-    def __init__(self, args, loss_type, robAlpha = 0.5):
-        '''
-        :param threshold: margin for squred hinge loss
-        '''
-        super(ROBSGD, self).__init__()
+    def __init__(self, args, loss_type, abAlpha =1):
+        super(ABSGD, self).__init__()
         self.loss_type = loss_type
         self.u = 0
-        self.u_1 = 0
         self.gamma = args.drogamma
-        self.robAlpha = robAlpha
+        self.robAlpha = abAlpha
         self.criterion = CBCELoss(reduction='none')
         if 'ldam' in self.loss_type:
-            # print(args.cls_num_list)
             self.criterion = LDAMLoss(cls_num_list=args.cls_num_list, max_m=0.5, s=30, reduction = 'none')
         elif 'focal' in self.loss_type:
             self.criterion = FocalLoss(gamma=args.gamma, reduction='none')
@@ -48,13 +43,7 @@ class ROBSGD(nn.Module):
         if myLambda >= 200: # reduces to CE
             p = 1/len(loss)
         else:
-            # print(torch.mean(loss).item())
-            # max_loss = max(loss)
-            # print(max_loss.item())
-            # if cls_weights is not None: # just for ldam right now
-            #     loss = loss/torch.sum(cls_weights[target])
 
-            # print(loss.max(), loss.min())
             expLoss = torch.exp(loss / myLambda)
             # u  = (1 - gamma) * u + gamma * alpha * g
             self.u = (1 - self.gamma) * self.u + self.gamma * (self.robAlpha * torch.mean(expLoss))
@@ -62,15 +51,9 @@ class ROBSGD(nn.Module):
             drop.detach_()
             p = drop
 
-            # if you want further boosting, you can try the following trick
-            # print("qiqi:", len(p[p < 1 / loss.size(0)]), p.sum())
-            # average_p = torch.ones_like(p)/loss.size(0)
-            # p[p<1/loss.size(0)] = average_p[p<1/loss.size(0)]
-            # p = p + 1 / loss.size(0)
-
-        weighted_loss = torch.sum(p * loss)
+        abloss = torch.sum(p * loss)
         # print(weighted_loss.item())
-        return weighted_loss
+        return abloss
 
 def get_train_loss(args, loss_type):
     if args.loss_type == 'ce':
@@ -79,11 +62,11 @@ def get_train_loss(args, loss_type):
         criterion = LDAMLoss(cls_num_list=args.cls_num_list, max_m=0.5, s=30)
     elif args.loss_type == 'focal':
         criterion = FocalLoss(gamma=1)
-    elif 'rob' in args.loss_type:
+    elif 'ab' in args.loss_type:
         # print(' args.loss_type: ', args.loss_type, args.cls_num_list)
-        criterion = ROBSGD(args, args.loss_type, robAlpha=args.robAlpha)
+        criterion = ABSGD(args, args.loss_type, abAlpha=args.abAlpha)
     elif 'neb' in args.loss_type:
-        criterion = NEBLoss(args, args.loss_type, topK=args.topK, neb_tau= args.neb_tau, robAlpha=args.robAlpha)
+        criterion = NEBLoss(args, args.loss_type, topK=args.topK, neb_tau= args.neb_tau, abAlpha=args.abAlpha)
     else:
         warnings.warn('Loss type is not listed')
         return
@@ -152,10 +135,10 @@ class CBCELoss(nn.Module):
 
 
 class NEBLoss(nn.Module):
-    def __init__(self,args, loss_type, neb_tau = 1, topK = 5, robAlpha=1):
+    def __init__(self,args, loss_type, neb_tau = 1, topK = 5, abAlpha=1):
         super(NEBLoss, self).__init__()
         self.criterion = CBCELoss(reduction='none')
-        self.robAlpha = robAlpha
+        self.abAlpha = abAlpha
         self.gamma = args.drogamma
         self.u = 0
         self.topK = topK
@@ -211,7 +194,7 @@ class NEBLoss(nn.Module):
             #     loss = loss/torch.sum(cls_weights[target])
             expLoss = torch.exp(embed_loss/myLambda)
             # u  = (1 - gamma) * u + gamma * alpha * g
-            self.u = (1 - self.gamma) * self.u + self.gamma * (self.robAlpha * torch.mean(expLoss))
+            self.u = (1 - self.gamma) * self.u + self.gamma * (self.abAlpha * torch.mean(expLoss))
             drop = expLoss / (self.u * len(embed_loss))
             drop.detach_()
             p = drop

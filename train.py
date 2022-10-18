@@ -46,7 +46,7 @@ parser.add_argument('--model', metavar='ARCH', default='resnet32',
                          ' | '.join(model_names) +
                          ' (default: resnet32)')
 parser.add_argument('--loss_type', default="CE", type=str,
-                    choices=['focal', 'ldam', 'robldam', 'robfocal', 'robce', 'ce', 'nebce'], help='loss type')
+                    choices=['focal', 'ldam', 'abldam', 'abfocal', 'abce', 'ce', 'nebce'], help='loss type')
 parser.add_argument('--imb_type', default="exp", type=str, help='imbalance type')
 parser.add_argument('--imb_factor', default=0.01, type=float, help='imbalance factor')
 parser.add_argument('--train_rule', default='None', type=str, choices=['None', 'resample', 'reweight'],
@@ -93,7 +93,7 @@ parser.add_argument('--start_time', type=float, default=100)
 parser.add_argument('--repeats', type=int, default=0)
 parser.add_argument('--alg', type=str, help='Algorithm')
 parser.add_argument('--gamma', type=float, default=1, help='smooth parameter of focal loss')
-parser.add_argument('--drogamma', type=float, default=0.1, help='moving average parameter of ROBSGD')
+parser.add_argument('--drogamma', type=float, default=0.1, help='moving average parameter of ABSGD')
 parser.add_argument('--alpha', type=float, default=1, help='balance parameter of focal loss')
 parser.add_argument('--RENORM', default=True, type=eval, choices=[True, False],
                     help='Renormalized MSCGD or MSCGD')
@@ -108,7 +108,7 @@ parser.add_argument('--frozen_aside_fc', default=False, type=eval, choices=[True
 parser.add_argument('--not_frozen_last_block', default=False, type=eval, choices=[True, False],
                     help='whether frozen the feature layers (First three block)')
 
-parser.add_argument('--robAlpha', default=0.5, type=float, help='Normalization Parameter for the Normalization Term')
+parser.add_argument('--abAlpha', default=0.5, type=float, help='Normalization Parameter for the Normalization Term')
 parser.add_argument('--isTau', default=False, type=eval, choices=[True, False],
                     help='Whether Normalize the calssifier layer.')
 parser.add_argument('--use_BN', default=False, type=eval, choices=[True, False],
@@ -355,7 +355,7 @@ def forward(args, data_loader, model, criterion, epoch, optimizer, cls_weights, 
             # print(output.size(), torch.sum(output, dim= 1, keepdim=True)[0], torch.norm(output, p=2, dim=1, keepdim= True)[0][0],  torch.norm(output,dim=1, keepdim= True)[0])
 
             # loss
-            if 'rob' in args.loss_type:
+            if 'ab' in args.loss_type:
                 loss = criterion(outputs, targets, cls_weights, myLambda)
                 args.u  = criterion.u
             elif 'neb' in args.loss_type:
