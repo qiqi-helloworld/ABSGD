@@ -129,7 +129,6 @@ def model_eval(args, epoch, fixed_cnn, data_loader):
          norm_u = args.u if type(args.u) is int else args.u.item()
 
          norm_u =1
-         # print(all_targets, all_losses, norm_u)
          clsp = get_wieghts_of_clean_noisy(args, all_losses, all_targets, norm_u,  args.lamda, args.noisy_index)
     print(clsp)
 
@@ -152,28 +151,26 @@ def train_fixed(args, starting_epoch, epoch, data_loader, fixed_cnn, criterion, 
     else:
         if epoch >= args.lamda_shots:
             myLambda = args.lamda
-
-
-
+            
     peer_iter = iter(data_loader['train_dataset_peer'])
-    # cnt = 0
-
+    
+    
     if args.loss == 'TCE' and epoch > args.lamda_shots:
-
         for batch_idx, (inputs, labels, indexes) in enumerate(data_loader["train_dataset"]):
             inputs, labels = inputs.cuda(non_blocking=True), labels.cuda(non_blocking=True)
             outputs = fixed_cnn(inputs)
             criterion.update_weight(outputs, labels, indexes)
-
+            
     for i, (images, labels, indexes) in enumerate(data_loader["train_dataset"]):
         if i%500 == 0:
             print(i,'/', len(data_loader["train_dataset"]))
-
+            
         images, labels = images.cuda(non_blocking = True), labels.cuda(non_blocking = True)
         pred = fixed_cnn(images)
-        # class tau = 1 benefits a lot for CIFAR datasets.
+        # Prediction normalization : class tau = 1 benefits a lot for CIFAR datasets.
         pred = pred / (torch.norm(pred, p=2, dim=1, keepdim=True) ** args.class_tau)
-
+        
+        # loss updates
         if 'AB' in args.loss:
             loss = criterion(pred, labels, indexes, myLambda)
             args.u = criterion.u
@@ -189,16 +186,13 @@ def train_fixed(args, starting_epoch, epoch, data_loader, fixed_cnn, criterion, 
 
         fixed_cnn_optmizer.zero_grad()
         loss.backward()
-        # if args.loss == 'SCE':
         torch.nn.utils.clip_grad_norm_(fixed_cnn.parameters(), args.grad_bound)
         fixed_cnn_optmizer.step()
 
-        # print(epoch, i, " : Stuck Point 2")
         acc, acc5 = accuracy(pred, labels, topk=(1, 5))
         acc_sum = torch.sum((torch.max(pred, 1)[1] == labels).type(torch.float))
         total = pred.shape[0]
         acc = acc_sum / total
-        # print(epoch, i, " : Stuck Point 3")
         train_loss_meters.update(loss.item())
         train_acc_meters.update(acc.item())
         train_acc5_meters.update(acc5.item())
@@ -234,18 +228,15 @@ def main():
         args.epoch = 120
         fixed_cnn = SCEModel()
         args.noisy_index = dataLoader['train_dataset'].dataset.noisy_idx
-        # print('>>>>> : ', args.nr, ':',  len(args.noisy_index))
-        #    cifar10Nosiy.noisy_idx
     elif args.dataset_type == 'clothing1M':
         num_classes = 14
         fixed_cnn = models.resnet50(pretrained=True)
         fixed_cnn.fc = nn.Linear(2048, 14)
     else:
         raise('Unimplemented')
-
-    # print("args.loss: >>>>>> ", args.loss)
+    
+    # loss types
     if 'AB' in args.loss:
-        # print(">>>>>> ", num_classes)
         criterion =ABLoss(loss= args.loss, alpha=args.alpha, beta=args.beta, num_classes=num_classes, abAlpha = args.abAlpha, droGamma = args.droGamma, trainset_size= len(dataLoader['train_dataset'].dataset))
     elif args.loss == 'SCE':
         criterion = SCELoss(alpha=args.alpha, beta=args.beta, num_classes=num_classes)
@@ -257,7 +248,7 @@ def main():
         criterion = TruncatedLoss(trainset_size=len(dataLoader['train_dataset'].dataset))
     else:
         pass
-    # print(args)
+
     fixed_cnn = torch.nn.DataParallel(fixed_cnn)
     fixed_cnn.to(device)
     fixed_cnn_optmizer = torch.optim.SGD(params= adjust_weight_decay(fixed_cnn, args.l2_reg),
@@ -266,11 +257,9 @@ def main():
 
     if args.dataset_type != 'clothing1M':
         # CIFAR10
-        # fixed_cnn_scheduler = torch.optim.lr_scheduler.MultiStepLR(fixed_cnn_optmizer, milestones=[40, 80], gamma=0.1) # cifar10 40, 80
         fixed_cnn_scheduler = torch.optim.lr_scheduler.MultiStepLR(fixed_cnn_optmizer, milestones=[40, 80], gamma=0.1) # cifar10 40, 80
     else:
         fixed_cnn_scheduler = torch.optim.lr_scheduler.MultiStepLR(fixed_cnn_optmizer, milestones=[5], gamma=0.1)
-
 
     starting_epoch = 0
     global GLOBAL_STEP, reduction_arc, cell_arc, TEST_BEST_ACC, EVAL_STEP, TEST_BEST_ACC_TOP5
@@ -280,29 +269,20 @@ def main():
     test_curr_acc, test_curr_acc5, cur_test_clsp = model_test(args, 0, fixed_cnn, dataLoader['test_dataset'])
     for epoch in range(starting_epoch, args.epoch):
 
-        print('Epoch : ', epoch)
         train_fixed(args, starting_epoch, epoch, dataLoader, fixed_cnn, criterion, fixed_cnn_optmizer, fixed_cnn_scheduler)
-
         fixed_cnn_scheduler.step()
-
-        print(dataLoader['val_dataset'] is not None, dataLoader['val_dataset'] )
-
         if dataLoader['val_dataset'] is not None:
             eval_curr_acc, eval_curr_acc5, cur_eval_clsp, eval_loss = model_eval(args, epoch, fixed_cnn, dataLoader['val_dataset'])
         else:
             train_cur_acc, train_cur_acc5, cur_train_clsp, train_loss = model_eval(args, epoch, fixed_cnn, dataLoader['train_dataset'])
 
         test_curr_acc, test_curr_acc5, cur_test_clsp = model_test(args, epoch, fixed_cnn, dataLoader['test_dataset'])
-
-
         TEST_BEST_ACC = max(test_curr_acc, TEST_BEST_ACC)
         TEST_BEST_ACC_TOP5 = max(test_curr_acc5,TEST_BEST_ACC_TOP5)
+        
         wandb.log({'test_acc' : test_curr_acc, 'best_test_acc' : TEST_BEST_ACC, 'train_loss': train_loss, 'eval_loss':eval_loss}, step = epoch)
-
-
         if test_curr_acc == TEST_BEST_ACC:
             best_epoch = epoch
-
         print(epoch, " : >>>>> test_curr_acc: ", args.nr, test_curr_acc, TEST_BEST_ACC, best_epoch, 'train_loss : ', train_loss, 'eval_loss :', eval_loss)
 
 
