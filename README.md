@@ -1,5 +1,5 @@
 # A Unified Stochastic Robust Gradient Reweighting Framework for Data Imbalance and Label Noise [![pdf](https://img.shields.io/badge/Arxiv-pdf-orange.svg?style=flat)](https://arxiv.org/pdf/2012.06951.pdf)
-This is the official implementation of Algorithm 1 the paper "**A Unified Stochastic Robust Gradient Reweighting Framework for Data Imbalance and Label Noise**".
+This is the official implementation of Algorithm 1 the paper "**Attentional-Biased Stochastic Gradient Descent**".
 
 <img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
 
@@ -12,7 +12,46 @@ The package has been released, to install:
 ```
 pip3 install absgd
 ```
-Training tutorial and examples: 
+Training tutorial and examples:
+Package
+----------
+```python
+>>> from absgd.losses import ABLoss
+>>> from absgd.optimizers import ABSGD, ABAdam
+```
+You can design your own loss. The following is a usecase, for more details pelease refer:
+```python
+>>> #import library
+>>> from absgd.losses import ABLoss
+>>> from absgd.optimizers import ABSGD, ABAdam
+...
+>>> #define loss
+>>> mylambda = 0.5
+# this can be easily combined with existing CBCE, LDAM loss, please refer our paper https://arxiv.org/pdf/2012.06951.pdf
+>>> criterion =  nn.CrossEntropyLoss(reduction='none') 
+>>> abloss = ABLoss(mylambda, criterion = criterion)
+>>> abloss = ABLoss()
+>>> optimizer = ABSGD()
+...
+>>> #training
+>>> model.train()
+>>> for epoch in range(epochs):
+>>>     for i, (inputs, targets) in enumerate(train_loader):
+        inputs, targets = inputs.cuda(), targets.cuda()
+        outputs = model(inputs)
+        losses = abloss(outputs, targets)
+        optimizer.zero_grad()
+        losses.backward()
+        optimizer.step()
+    abloss.updateLambda()
+```
+
+
+Reminder
+----------
+If you want to download the code that reproducing the reported table results for the [Attentional Biased Stochastic Gradient Descent](https://arxiv.org/pdf/2012.06951.pdf), please go to the subdirectories and refer next section!
+
+
 
 Reproduce results for the paper!
 ----------------------------------------------
@@ -26,6 +65,18 @@ During the implementation, we encode the robust weight $\tilde{p}_i$ in Step 6 i
 
 
 ```python
+for epoch in range(epochs):
+    model.train()
+    for i, (inputs, targets) in enumerate(train_loader):
+        inputs, targets = inputs.cuda(), targets.cuda()
+        outputs = model(inputs)
+        losses = abloss(outputs, targets)
+        optimizer.zero_grad()
+        losses.backward()
+        optimizer.step()
+    abloss.updateLambda()
+    scheduler.step()
+    
 class ABSGD(nn.Module):
     def __init__(self, args, loss_type, abAlpha = 1):
         super(ABSGD, self).__init__()
