@@ -23,7 +23,7 @@ Package
 >>> from absgd.losses import ABLoss
 >>> from absgd.optimizers import ABSGD, ABAdam
 ```
-You can design your own loss. The following is a usecase, for more details pelease refer [ABSGD.ipynb](https://github.com/qiqi-helloworld/ABSGD/ABSGD.ipynb).
+You can design your own loss. The following is a usecase, for more details pelease refer [ABSGD_tutorial.ipynb](https://github.com/qiqi-helloworld/ABSGD/ABSGD_tutorial.ipynb).
 ```python
 >>> #import library
 >>> from absgd.losses import ABLoss
