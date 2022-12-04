@@ -12,12 +12,11 @@ News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de9
 ----------------------------------------------
 With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge, Oct 2022. The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/tree/main/wilds-competition).
 
-The package has been released, to install:
+Package has been released, to install:
 ```
 pip3 install absgd
 ```
-Training tutorial and examples:
-Package
+ABSGD Package: Training tutorial and examples:
 ----------
 ```python
 >>> from absgd.losses import ABLoss
