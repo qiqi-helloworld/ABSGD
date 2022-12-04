@@ -1,5 +1,5 @@
 # Attentional-Biased Stochastic Gradient Descent[![pdf](https://img.shields.io/badge/Arxiv-pdf-orange.svg?style=flat)](https://arxiv.org/pdf/2012.06951.pdf)
-This is the official implementation of Algorithm 1 the paper "[**Attentional-Biased Stochastic Gradient Descent**](https://img.shields.io/badge/Arxiv-pdf-orange.svg?style=flat)".
+This is the official implementation of Algorithm 1 the paper "[**Attentional-Biased Stochastic Gradient Descent**](https://arxiv.org/pdf/2012.06951.pdf)".
 
 <img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
 
@@ -23,7 +23,7 @@ Package
 >>> from absgd.losses import ABLoss
 >>> from absgd.optimizers import ABSGD, ABAdam
 ```
-You can design your own loss. The following is a usecase, for more details pelease refer:
+You can design your own loss. The following is a usecase, for more details pelease refer [ABSGD.ipynb](https://github.com/qiqi-helloworld/ABSGD/ABSGD.ipynb):
 ```python
 >>> #import library
 >>> from absgd.losses import ABLoss
