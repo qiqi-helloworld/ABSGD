@@ -7,10 +7,10 @@ ABSGD is an instance reweighting method to encourage the model focus on hard sam
 
 
  Key parameters of ABSGD
-```python
---mylambda (default 0.5) : $ \lambda $
---abgamma (default 0.9) : $ \gamma $, moving average hyper-parameter
-```
+
+<code>--mylambda</code> **$\lambda$**, (default 0.5) : tempurature parameter for robust weights \
+<code>--abgamma</code> $\gamma \in 0\sim 1$ (default 0.9) : moving average hyper-parameter to maintain history information
+
 News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de92a5-8ccb-48ed-b477-aa435e155c1f.png" alt="drawing" width="20"/>
 ----------------------------------------------
 With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge, 10/2022. The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/tree/main/wilds-competition).
@@ -19,7 +19,7 @@ Package has been released, to install:
 ```
 pip3 install absgd
 ```
-ABSGD Package: Training tutorial and examples:
+<img src="https://user-images.githubusercontent.com/17371111/196532894-41de92a5-8ccb-48ed-b477-aa435e155c1f.png" alt="drawing" width="20"/>  ABSGD Package : Training tutorial and examples:
 ----------
 ```python
 >>> from absgd.losses import ABLoss
@@ -54,7 +54,7 @@ You can design your own loss. The following is a usecase, for more details pelea
 
 Reminder
 ----------
-If you want to download the code that reproducing the reported table results for the [Attentional Biased Stochastic Gradient Descent](https://arxiv.org/pdf/2012.06951.pdf), please go to the subdirectories and refer next section!
+If you want to download the code that reproducing the reported table results for the [Attentional Biased Stochastic Gradient Descent](https://arxiv.org/pdf/2012.06951.pdf), please download current repositoary and refer next section!
 
 
 
@@ -78,7 +78,7 @@ python3 -W ignore train.py --dataset cifar10 --model resnet32 --epochs 200 --bat
 ```
 
 
-CIFAR100 with step imbalance ratio $\rho = 0.01$
+CIFAR100 with step imbalance ratio $\gamma = 0.01$
 ```
 python3 -W ignore train.py --dataset cifar100 --model resnet32 --epochs 200 --batch_size 128 --gpu 3 --loss_type abce --print_freq 100 --lamda 3 --init_lamda 200 --imb_factor 0.01 --seed 0 --CB_shots 160 --lr 0.1 --drogamma 0.45 --abAlpha 0.3 --imb_type step --train_rule reweight;
 ```
