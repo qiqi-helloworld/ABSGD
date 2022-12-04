@@ -2,6 +2,9 @@
 This is the official implementation of Algorithm 1 the paper "[**Attentional-Biased Stochastic Gradient Descent**](https://arxiv.org/pdf/2012.06951.pdf)".
 
 <img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
+ABSGD is an instance reweighting method to encourage the model focus on hard samples by assigning higher robust weights $\tilde{p}_i$ to larger losses.
+<img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
+
 
  Key parameters of ABSGD
 ```python
@@ -10,7 +13,7 @@ This is the official implementation of Algorithm 1 the paper "[**Attentional-Bia
 ```
 News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de92a5-8ccb-48ed-b477-aa435e155c1f.png" alt="drawing" width="20"/>
 ----------------------------------------------
-With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge, Oct 2022. The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/tree/main/wilds-competition).
+With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge, 10/2022. The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/tree/main/wilds-competition).
 
 Package has been released, to install:
 ```
@@ -28,7 +31,7 @@ You can design your own loss. The following is a usecase, for more details pelea
 >>> from absgd.losses import ABLoss
 >>> from absgd.optimizers import ABSGD, ABAdam
 ...
->>> #define loss
+>>> # define loss
 >>> mylambda = 0.5
 # this can be easily combined with existing CBCE, LDAM loss, please refer our paper https://arxiv.org/pdf/2012.06951.pdf
 >>> criterion =  nn.CrossEntropyLoss(reduction='none') 
@@ -48,7 +51,6 @@ You can design your own loss. The following is a usecase, for more details pelea
     # for two-stage $\lambda$ updates
     abloss.updateLambda()
 ```
-
 
 Reminder
 ----------
