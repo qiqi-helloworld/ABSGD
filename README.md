@@ -1,9 +1,13 @@
-# A Unified Stochastic Robust Gradient Reweighting Framework for Data Imbalance and Label Noise [![pdf](https://img.shields.io/badge/Arxiv-pdf-orange.svg?style=flat)](https://arxiv.org/pdf/2012.06951.pdf)
-This is the official implementation of Algorithm 1 the paper "**Attentional-Biased Stochastic Gradient Descent**".
+# Attentional-Biased Stochastic Gradient Descent[![pdf](https://img.shields.io/badge/Arxiv-pdf-orange.svg?style=flat)](https://arxiv.org/pdf/2012.06951.pdf)
+This is the official implementation of Algorithm 1 the paper "[**Attentional-Biased Stochastic Gradient Descent**](https://img.shields.io/badge/Arxiv-pdf-orange.svg?style=flat)".
 
 <img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
 
-
+ Key parameters of ABSGD
+```python
+--mylambda (default 0.5) : $\lambda$
+--abgamma (default 0.9) : $\gamma$, moving average hyper-parameter
+```
 News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de92a5-8ccb-48ed-b477-aa435e155c1f.png" alt="drawing" width="20"/>
 ----------------------------------------------
 With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge. The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/tree/main/wilds-competition).
@@ -30,7 +34,6 @@ You can design your own loss. The following is a usecase, for more details pelea
 # this can be easily combined with existing CBCE, LDAM loss, please refer our paper https://arxiv.org/pdf/2012.06951.pdf
 >>> criterion =  nn.CrossEntropyLoss(reduction='none') 
 >>> abloss = ABLoss(mylambda, criterion = criterion)
->>> abloss = ABLoss()
 >>> optimizer = ABSGD()
 ...
 >>> #training
@@ -43,6 +46,7 @@ You can design your own loss. The following is a usecase, for more details pelea
         optimizer.zero_grad()
         losses.backward()
         optimizer.step()
+    # for two-stage $\lambda$ updates
     abloss.updateLambda()
 ```
 
@@ -55,55 +59,14 @@ If you want to download the code that reproducing the reported table results for
 
 Reproduce results for the paper!
 ----------------------------------------------
-During the implementation, we encode the robust weight $\tilde{p}_i$ in Step 6 in Algorithm 1 into the loss function and then by optimizing the robust loss using SGD, we have ABSGD. Implemented in this way, with simple modifications, ABSGD can easily optimize other SOTA losses such as CBCE, LDAM, focal. Key parameters of ABSGD
-```python
---mylambda : $\lambda$
---abalpha (default 1.0) : a hyperparamter between $(0,1]$ to handle the numerical issue may appear the second stage.
---abgamma (default 0.9) : $\gamma$, moving average hyper-parameter
-
-```
-
+In the paper,  we combine ABSGD with other SOTA losses such as CBCE, LDAM, focal.
 
 ```python
-for epoch in range(epochs):
-    model.train()
-    for i, (inputs, targets) in enumerate(train_loader):
-        inputs, targets = inputs.cuda(), targets.cuda()
-        outputs = model(inputs)
-        losses = abloss(outputs, targets)
-        optimizer.zero_grad()
-        losses.backward()
-        optimizer.step()
-    abloss.updateLambda()
-    scheduler.step()
-    
-class ABSGD(nn.Module):
-    def __init__(self, args, loss_type, abAlpha = 1):
-        super(ABSGD, self).__init__()
-        self.loss_type = loss_type
-        self.u = 0
-        self.gamma = args.drogamma
-        self.robAlpha = robAlpha
         self.criterion = CBCELoss(reduction='none')
         if 'ldam' in self.loss_type:
             self.criterion = LDAMLoss(cls_num_list=args.cls_num_list, max_m=0.5, s=30, reduction = 'none')
         elif 'focal' in self.loss_type:
             self.criterion = FocalLoss(gamma=args.gamma, reduction='none')
-
-    def forward(self, output, target, cls_weights, myLambda):
-
-        loss = self.criterion(output, target, cls_weights)
-        if myLambda >= 200: # reduces to CE
-            p = 1/len(loss)
-        else:
-            expLoss = torch.exp(loss / myLambda)
-            self.u = (1 - self.gamma) * self.u + self.gamma * (self.abAlpha * torch.mean(expLoss))
-            drop = expLoss/(self.u * len(loss))
-            drop.detach_()
-            p = drop
-
-        abloss = torch.sum(p * loss)
-        return abloss
  ```
 
 Running Examples for Data Imabalace Settings
