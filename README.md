@@ -2,14 +2,14 @@
 This is the official implementation of Algorithm 1 the paper "[**Attentional-Biased Stochastic Gradient Descent**](https://arxiv.org/pdf/2012.06951.pdf)".
 
 <img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
-ABSGD is an instance reweighting method to encourage the model focus on hard samples by assigning higher robust weights $\tilde{p}_i$ to larger losses.
-<img src="https://user-images.githubusercontent.com/17371111/196511607-ade8c8ee-d07d-4dc4-9939-6d467bb5049e.png" alt="drawing" width="400"/>
+ABSGD is an instance reweighting method to encourage the model focus on hard samples by assigning higher robust weights $\tilde{p}_i$ to larger losses. Illustraion:
+<img src="./illustrations.jpg" alt="drawing" width="800"/>
 
 
  Key parameters of ABSGD
 ```python
---mylambda (default 0.5) : $\lambda$
---abgamma (default 0.9) : $\gamma$, moving average hyper-parameter
+--mylambda (default 0.5) : $ \lambda $
+--abgamma (default 0.9) : $ \gamma $, moving average hyper-parameter
 ```
 News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de92a5-8ccb-48ed-b477-aa435e155c1f.png" alt="drawing" width="20"/>
 ----------------------------------------------
