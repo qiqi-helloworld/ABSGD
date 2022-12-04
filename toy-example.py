@@ -242,6 +242,7 @@ if __name__ == '__main__':
         majority_x = data['majority_x']
         majority_y = data['majority_y']
     else:
+        np.random.seed(7)
         mu = 60
         sigma = 5
         minor_x = []
