@@ -8,15 +8,19 @@ News<img src="https://user-images.githubusercontent.com/17371111/196532894-41de9
 ----------------------------------------------
 With the assistant of ABSGD, we achieve ***1st in ResNet50*** (4th of 16 in total) in the [iWildCam](https://wilds.stanford.edu/leaderboard/) out of distribution changllenge. The code repo is provided in the [wilds-competition](https://github.com/qiqi-helloworld/ABSGD/tree/main/wilds-competition).
 
+The package has been released, to install:
+```
+pip3 install absgd
+```
+Training tutorial and examples: 
 
-
-Implementation Details.
+Reproduce results for the paper!
 ----------------------------------------------
 During the implementation, we encode the robust weight $\tilde{p}_i$ in Step 6 in Algorithm 1 into the loss function and then by optimizing the robust loss using SGD, we have ABSGD. Implemented in this way, with simple modifications, ABSGD can easily optimize other SOTA losses such as CBCE, LDAM, focal. Key parameters of ABSGD
 ```python
---myLambda : $\lambda$
---abAlpha : a hyperparamter between $(0,1]$ to handle the numerical issue may appear the second stage.
---drogamma : $\gamma$, moving average hyper-parameter
+--mylambda : $\lambda$
+--abalpha (default 1.0) : a hyperparamter between $(0,1]$ to handle the numerical issue may appear the second stage.
+--abgamma (default 0.9) : $\gamma$, moving average hyper-parameter
 
 ```
 
