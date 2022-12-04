@@ -171,6 +171,7 @@ def train_fixed(args, starting_epoch, epoch, data_loader, fixed_cnn, criterion, 
 
         images, labels = images.cuda(non_blocking = True), labels.cuda(non_blocking = True)
         pred = fixed_cnn(images)
+        # class tau = 1 benefits a lot for CIFAR datasets.
         pred = pred / (torch.norm(pred, p=2, dim=1, keepdim=True) ** args.class_tau)
 
         if 'AB' in args.loss:
