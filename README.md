@@ -42,12 +42,12 @@ You can design your own loss. The following is a usecase, for more details pelea
 >>> model.train()
 >>> for epoch in range(epochs):
 >>>     for i, (inputs, targets) in enumerate(train_loader):
-        inputs, targets = inputs.cuda(), targets.cuda()
-        outputs = model(inputs)
-        losses = abloss(outputs, targets)
-        optimizer.zero_grad()
-        losses.backward()
-        optimizer.step()
+            inputs, targets = inputs.cuda(), targets.cuda()
+            outputs = model(inputs)
+            losses = abloss(outputs, targets)
+            optimizer.zero_grad()
+            losses.backward()
+            optimizer.step()
     # for two-stage $\lambda$ updates
     abloss.updateLambda()
 ```
